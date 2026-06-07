@@ -1,20 +1,13 @@
 {
-  "functions": {
-    "api/index.php": {
-      "runtime": "vercel-php@0.5.2"
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.4"
+        }
     },
-    "api/euro.php": {
-      "runtime": "vercel-php@0.5.2"
-    },
-    "api/libra.php": {
-      "runtime": "vercel-php@0.5.2"
-    }
-  },
-  "routes": [
-    { "src": "/public/(css|js)/(.*)$", "dest": "/api/assets.php?type=$1&file=$2" },
-    { "src": "/",  "dest": "/api/index.php" },
-    { "src": "/euro",  "dest": "/api/euro.php" },
-    { "src": "/libra",  "dest": "/api/libra.php" },
-    { "src": "/sitemap.xml",  "dest": "/sitemap.xml" }
-  ]
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ]
 }
