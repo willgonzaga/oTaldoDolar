@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 
 class ExchangeRateService
 {
@@ -75,14 +74,27 @@ class ExchangeRateService
         $codes = implode(',', $keys);
 
         return Cache::remember('exchange_rates', 180, function () use ($codes) {
-            $response = Http::timeout(10)
-                ->get("https://economia.awesomeapi.com.br/json/last/{$codes}");
+            $url = "https://economia.awesomeapi.com.br/json/last/{$codes}";
 
-            if ($response->failed() || $response->serverError()) {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_HTTPHEADER => ['Accept: application/json'],
+            ]);
+
+            $json = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($json === false || $httpCode !== 200) {
                 return null;
             }
 
-            return $response->json();
+            return json_decode($json, true);
         });
     }
 }
